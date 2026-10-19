@@ -1,0 +1,19 @@
+{
+  "id": "ab4f1618-1de1-464a-9ab7-4e4bc0abc91c",
+  "name": "CineFlex Local",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}

@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineFlex | Tu cine en casa</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1>CINE<span>FLEX</span></h1>
+    <div class="user-area">
+      <span id="user-name"></span>
+      <button id="logout-button" hidden>Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="login-view" class="view">
+      <div class="login-card">
+        <h2>Bienvenido a CineFlex</h2>
+        <p>Inicia sesión para disfrutar de nuestra cartelera.</p>
+
+        <form id="login-form">
+          <label for="login-email">Correo electrónico</label>
+          <input
+            id="login-email"
+            type="email"
+            placeholder="Ingresa tu correo"
+            autocomplete="username"
+            required
+          >
+
+          <label for="login-password">Contraseña</label>
+          <input
+            id="login-password"
+            type="password"
+            placeholder="Ingresa tu contraseña"
+            autocomplete="current-password"
+            required
+          >
+
+          <button id="login-submit" type="submit">
+            Iniciar sesión
+          </button>
+        </form>
+
+        <p id="login-error" class="error" role="alert"></p>
+      </div>
+    </section>
+
+    <section id="cartelera-view" class="view" hidden>
+      <h2 id="cartelera-title">Cartelera</h2>
+      <p>Descubre nuestras películas disponibles.</p>
+      <div id="movies-grid" class="movies-grid"></div>
+    </section>
+
+    <section id="reserva-view" class="view" hidden>
+      <button id="back-cartelera" class="secondary">
+        Volver a cartelera
+      </button>
+
+      <h2 id="selected-movie-title"></h2>
+
+      <label for="horario">Selecciona un horario</label>
+      <select id="horario"></select>
+
+      <h3>Selecciona tu asiento</h3>
+
+      <div class="screen">PANTALLA</div>
+
+      <div id="asientos-grid" class="seats-grid"></div>
+
+      <p id="selected-seat-label">
+        Ningún asiento seleccionado
+      </p>
+
+      <p id="reserva-error" class="error" role="alert"></p>
+
+      <button id="continue-payment">
+        Continuar al pago
+      </button>
+    </section>
+
+    <section id="pago-view" class="view" hidden>
+      <button id="back-reserva" class="secondary">
+        Volver a los asientos
+      </button>
+
+      <h2>Finalizar compra</h2>
+      <p id="payment-summary"></p>
+
+      <form id="payment-form">
+        <label for="tarjeta">Método de pago simulado</label>
+
+        <select id="tarjeta" required>
+          <option value="PRUEBA_APROBADA">
+            Pago de prueba aprobado
+          </option>
+          <option value="TARJETA_FALSA">
+            Pago de prueba rechazado
+          </option>
+        </select>
+
+        <button id="confirm-payment" type="submit">
+          Confirmar compra
+        </button>
+      </form>
+
+      <p id="payment-error" class="error" role="alert"></p>
+    </section>
+
+    <section id="ticket-view" class="view" hidden>
+      <div class="ticket-card">
+        <h2>¡Compra confirmada!</h2>
+        <p>Tu boleto virtual</p>
+
+        <h3 id="ticket-code"></h3>
+        <p id="ticket-movie"></p>
+        <p id="ticket-time"></p>
+        <p id="ticket-seat"></p>
+        <p id="ticket-price"></p>
+
+        <strong id="ticket-status"></strong>
+      </div>
+
+      <button id="back-home">
+        Volver a cartelera
+      </button>
+    </section>
+  </main>
+</body>
+</html>

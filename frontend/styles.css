@@ -1,0 +1,302 @@
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #101019;
+  color: #f8fafc;
+  min-height: 100vh;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 7%;
+  background: #191925;
+  border-bottom: 2px solid #e11d48;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 28px;
+  letter-spacing: 2px;
+}
+
+.topbar h1 span {
+  color: #e11d48;
+}
+
+.user-area {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 45px 24px;
+}
+
+h2 {
+  font-size: 30px;
+  margin-bottom: 15px;
+}
+
+h3 {
+  font-size: 21px;
+}
+
+p {
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+button {
+  border: none;
+  background: #e11d48;
+  color: white;
+  padding: 13px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: background 0.2s, transform 0.2s;
+}
+
+button:hover {
+  background: #be123c;
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.secondary {
+  background: #35354a;
+  margin-bottom: 20px;
+}
+
+.secondary:hover {
+  background: #484863;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 13px;
+  margin: 8px 0 18px;
+  border: 1px solid #44445e;
+  border-radius: 8px;
+  background: #242436;
+  color: white;
+  font-size: 15px;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid #e11d48;
+  border-color: #e11d48;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+}
+
+.login-card,
+.ticket-card {
+  max-width: 460px;
+  margin: 35px auto;
+  padding: 35px;
+  background: #1d1d2d;
+  border: 1px solid #33334b;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+.login-card h2 {
+  color: #ffffff;
+}
+
+.login-card label {
+  text-align: left;
+}
+
+.login-card form button {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 22px;
+  margin-top: 30px;
+}
+
+.movie-card {
+  background: #202031;
+  border: 1px solid #39394c;
+  border-radius: 14px;
+  padding: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.movie-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(225, 29, 72, 0.15);
+}
+
+.movie-poster {
+  height: 200px;
+  border-radius: 10px;
+  background: linear-gradient(
+    140deg,
+    #411335,
+    #911b4b,
+    #241c53
+  );
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 55px;
+}
+
+.movie-card h3 {
+  min-height: 52px;
+  color: #ffffff;
+}
+
+.movie-card button {
+  width: 100%;
+}
+
+.screen {
+  margin: 25px auto 35px;
+  text-align: center;
+  background: #dbeafe;
+  color: #101019;
+  padding: 12px;
+  max-width: 450px;
+  border-radius: 0 0 45px 45px;
+  letter-spacing: 5px;
+  box-shadow: 0 8px 25px rgba(219, 234, 254, 0.15);
+}
+
+.seats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 65px);
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 25px;
+}
+
+.seat {
+  padding: 16px 5px;
+  background: #15803d;
+  border-radius: 8px 8px 4px 4px;
+}
+
+.seat:hover {
+  background: #16a34a;
+}
+
+.seat.occupied {
+  background: #7f1d1d;
+}
+
+.seat.selected {
+  background: #2563eb;
+  outline: 3px solid white;
+}
+
+.error {
+  color: #fda4af;
+  font-weight: bold;
+}
+
+.ticket-card {
+  border: 2px dashed #e11d48;
+}
+
+.ticket-card h2 {
+  color: #4ade80;
+}
+
+#ticket-code {
+  color: #fda4af;
+  letter-spacing: 3px;
+  overflow-wrap: anywhere;
+}
+
+#ticket-status {
+  color: #4ade80;
+  font-size: 18px;
+}
+
+#ticket-view {
+  text-align: center;
+}
+
+#reserva-view,
+#pago-view {
+  max-width: 750px;
+  margin: auto;
+}
+
+#payment-form {
+  background: #202031;
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid #39394c;
+  margin-top: 25px;
+}
+
+#payment-summary {
+  font-size: 18px;
+}
+
+@media (max-width: 600px) {
+  .topbar {
+    padding: 15px;
+  }
+
+  .topbar h1 {
+    font-size: 21px;
+  }
+
+  .user-area {
+    gap: 8px;
+  }
+
+  main {
+    padding: 25px 15px;
+  }
+
+  .login-card,
+  .ticket-card {
+    padding: 22px;
+  }
+
+  .seats-grid {
+    grid-template-columns: repeat(4, 55px);
+    gap: 10px;
+  }
+
+  .movie-poster {
+    height: 170px;
+  }
+}
