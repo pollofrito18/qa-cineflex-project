@@ -7,3 +7,4 @@
 *.bak
 coverage/
 api_tests/CineFlex_Postman_Entrega/
+*.jtl
