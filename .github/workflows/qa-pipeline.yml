@@ -1,0 +1,44 @@
+﻿name: CineFlex - QA Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  pruebas-api:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Descargar proyecto
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Iniciar servidor CineFlex
+        run: |
+          nohup env JWT_SECRET="$(node -e "process.stdout.write(require('crypto').randomBytes(32).toString('hex'))")" PORT=3000 npm start > servidor.log 2>&1 < /dev/null &
+
+      - name: Verificar servidor
+        run: |
+          curl --fail --retry 20 --retry-delay 1 --retry-connrefused http://localhost:3000/api/health || { cat servidor.log; exit 1; }
+
+      - name: Ejecutar pruebas Newman
+        run: |
+          npx newman run ../api_tests/CineFlex_API_Collection.json -e ../api_tests/CineFlex_Environment.json
