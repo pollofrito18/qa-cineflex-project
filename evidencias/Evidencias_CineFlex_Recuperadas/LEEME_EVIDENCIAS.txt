@@ -1,0 +1,26 @@
+CINEFLEX - EVIDENCIAS ORIGINALES RECUPERADAS DEL CHAT
+
+Estas 10 imágenes son capturas/fotos REALES que ya compartiste. No son inventadas.
+No tienen que ir todas en el PDF: utiliza principalmente las 8 numeradas.
+
+IMAGENES RECUPERADAS
+01_backend_health.png - Backend /api/health: estado OK
+03_asientos_seleccion.png - Interfaz de selección de asientos
+04_pago_rechazado.png - Rechazo del pago simulado
+05_ticket_confirmado.png - Ticket emitido correctamente
+06_postman_16_de_16.png - Postman Runner: 16 aprobadas
+08_github_actions_16_de_16.png - GitHub Actions: 16 aserciones, 0 errores
+10_jmeter_500_usuarios_config.png - JMeter: 500 usuarios, ramp-up 15 s
+11_jmeter_summary_500_consultas.jpg - Reporte FINAL: 500 consultas, 0 % errores, throughput de asientos 33,4/s
+EXTRA_pipeline_exitoso.png - Vista general de ejecución exitosa en GitHub
+EXTRA_jmeter_configuracion_jwt.png - Configuración de token JWT en JMeter
+
+ESTAS CAPTURAS NO ESTAN EN EL PAQUETE Y DEBES TOMARLAS EN EL PC:
+02_cartelera.png - Navegador con la cartelera de 3 películas (http://localhost:3000, iniciar sesión)
+07_newman_16_de_16.png - PowerShell: npx newman run ... y tabla de 16 assertions, 0 failed
+09_selenium_15_de_15.png - PowerShell: desde ui_tests ejecutar npm test, guardar tests 15 / pass 15 / fail 0
+12_jmeter_terminal.png - Opcional: capturar PowerShell con el resumen de JMeter al repetir la prueba SOLO si lo necesitas; el archivo .jtl y la foto de Summary Report ya prueban la ejecución.
+
+IMPORTANTE: Al ejecutar nuevamente Selenium, el Backend reiniciará sus reservas temporales cuando lo reinicies.
+Al repetir Newman, los resultados deben seguir aprobando; no compartas tokens JWT ni secretos .env.
+Conserva los archivos en C:\Users\esteb\Documents\qa-cineflex-project\evidencias
