@@ -1,5 +1,5 @@
 
-# CineFlex | Aseguramiento de calidad y pruebas automatizadas
+# CineFlex | Aseguramiento de Calidad y Pruebas Automatizadas
 
 **Proyecto:** Taller Práctico Integrador — QA en Producción
 
@@ -7,223 +7,417 @@
 
 **Repositorio:** https://github.com/pollofrito18/qa-cineflex-project
 
-**Video de sustentación (3 minutos):** Pendiente de agregar el enlace público.
+**Video de sustentación (máximo 3 minutos):** Pendiente de agregar el enlace público.
 
 ---
 
-## 1. Descripción del proyecto
+## 1. Introducción
 
 CineFlex es una plataforma web simulada para la reserva y compra de entradas de cine.
 
-El proyecto permite iniciar sesión, consultar la cartelera, seleccionar películas y horarios, elegir asientos, simular pagos y generar tickets virtuales.
+Este proyecto fue desarrollado con el objetivo de aplicar estrategias de aseguramiento de calidad (QA), automatizar pruebas y verificar el funcionamiento de los principales componentes de una aplicación web.
 
-El objetivo principal es implementar y demostrar técnicas de aseguramiento de calidad mediante pruebas de API, interfaz, rendimiento e integración continua.
+El sistema permite:
 
-**Importante:** CineFlex es un entorno académico. No realiza transacciones bancarias reales y las reservas se almacenan temporalmente en memoria.
+- Iniciar sesión mediante autenticación JWT.
+- Consultar las películas disponibles.
+- Seleccionar películas y horarios.
+- Visualizar y seleccionar asientos disponibles.
+- Simular pagos aprobados y rechazados.
+- Generar tickets virtuales.
+- Consultar la información de una reserva.
 
-## 2. Arquitectura y tecnologías
+Se utilizaron herramientas de pruebas como Postman, Newman, Selenium WebDriver, Apache JMeter y GitHub Actions.
 
-| Componente | Tecnología | Función |
+**Nota:** CineFlex es un entorno académico simulado. No realiza pagos bancarios reales ni utiliza una base de datos persistente.
+
+---
+
+## 2. Objetivos
+
+### Objetivo general
+
+Aplicar técnicas de aseguramiento de calidad para validar las funcionalidades, el rendimiento y la automatización de pruebas de CineFlex.
+
+### Objetivos específicos
+
+1. Desarrollar una API REST funcional con Node.js y Express.
+2. Implementar autenticación mediante JWT.
+3. Simular las respuestas de una pasarela bancaria.
+4. Automatizar pruebas de API con Postman y Newman.
+5. Automatizar pruebas de interfaz utilizando Selenium y Page Object Model.
+6. Evaluar el comportamiento del sistema mediante Apache JMeter.
+7. Implementar integración continua con GitHub Actions.
+8. Documentar las pruebas y sus resultados.
+
+---
+
+## 3. Arquitectura del sistema
+
+CineFlex está organizado en los siguientes componentes:
+
+| Componente | Tecnología | Responsabilidad |
 |---|---|---|
 | Frontend | HTML, CSS y JavaScript | Interfaz de usuario |
-| Backend | Node.js y Express | API REST y lógica de negocio |
-| Seguridad | Helmet, JWT y bcryptjs | Autenticación y protección |
-| Registro | Morgan | Trazabilidad de solicitudes |
-| API Testing | Postman y Newman | Validación automatizada de endpoints |
-| UI Testing | Selenium WebDriver | Automatización del navegador |
-| Patrón POM | Page Object Model | Separación de acciones y pruebas |
-| Rendimiento | Apache JMeter | Pruebas de carga |
-| Integración continua | GitHub Actions | Ejecución automática de Newman |
+| Backend | Node.js y Express | API REST y lógica de reservas |
+| Seguridad | JWT, Helmet y bcryptjs | Autenticación y protección |
+| Registro HTTP | Morgan | Trazabilidad de solicitudes |
+| API Testing | Postman | Pruebas de endpoints |
+| Automatización API | Newman | Ejecución de colecciones |
+| UI Testing | Selenium WebDriver | Pruebas del navegador |
+| Organización UI | Page Object Model | Separación de acciones y verificaciones |
+| Rendimiento | Apache JMeter | Simulación de carga |
+| Integración continua | GitHub Actions | Pruebas automáticas al subir cambios |
 
-## 3. Estructura del repositorio
+### Funcionamiento general
+
+1. El usuario accede a la aplicación web.
+2. El Frontend envía las solicitudes al Backend.
+3. El Backend verifica las credenciales y genera un token JWT.
+4. El usuario consulta la cartelera y selecciona una película.
+5. El Backend informa la disponibilidad de asientos.
+6. El usuario selecciona un asiento y un método de pago simulado.
+7. El sistema acepta o rechaza la operación.
+8. Si el pago es aprobado, se genera un ticket virtual.
+
+---
+
+## 4. Estructura del proyecto
 
 ```text
 qa-cineflex-project/
+│
 ├── README.md
 ├── estrategia_pruebas.pdf
+├── .gitignore
+│
 ├── backend/
 │   ├── server.js
 │   ├── package.json
 │   └── package-lock.json
+│
 ├── frontend/
 │   ├── index.html
 │   ├── styles.css
 │   └── app.js
+│
 ├── api_tests/
 │   ├── CineFlex_API_Collection.json
 │   └── CineFlex_Environment.json
+│
 ├── ui_tests/
 │   ├── pages/
 │   │   ├── LoginPage.js
 │   │   ├── CarteleraPage.js
 │   │   └── ReservaPage.js
 │   ├── test_suite.js
-│   └── package.json
+│   ├── package.json
+│   └── package-lock.json
+│
 ├── performance/
 │   └── prueba_carga.jmx
+│
 ├── evidencias/
 │   └── Evidencias_CineFlex_Recuperadas/
+│
 └── .github/
     └── workflows/
         └── qa-pipeline.yml
 ```
 
-## 4. Requisitos para ejecutar CineFlex
+---
 
-Se necesita:
+## 5. Instalación y configuración
+
+### 5.1. Requisitos
+
+Para ejecutar el proyecto se recomienda tener instalados:
 
 - Node.js y npm.
 - Git.
 - Visual Studio Code.
 - Google Chrome.
-- Postman, para las pruebas de API.
-- Java y Apache JMeter, para las pruebas de carga.
+- Postman.
+- Java y Apache JMeter para las pruebas de rendimiento.
 
-## 5. Instalación y ejecución
+### 5.2. Clonar el repositorio
 
-### Clonar el repositorio
+Abrir PowerShell o la terminal de VS Code:
 
 ```powershell
 git clone https://github.com/pollofrito18/qa-cineflex-project.git
 cd qa-cineflex-project
 ```
 
-### Instalar dependencias
+### 5.3. Instalar dependencias
+
+Ingresar a la carpeta del Backend:
 
 ```powershell
 cd backend
 npm ci
 ```
 
-### Variables de entorno
+### 5.4. Configurar variables de entorno
 
-Crear un archivo `.env` dentro de `backend`:
+Crear un archivo llamado `.env` dentro de `backend`.
+
+Contenido:
 
 ```env
 PORT=3000
 JWT_SECRET=GENERAR_UNA_CLAVE_ALEATORIA_SEGURA
 ```
 
-Se puede generar una clave desde PowerShell:
+Para generar una clave segura desde PowerShell:
 
 ```powershell
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-**No publicar el archivo `.env` ni claves privadas.**
+Sustituir el valor de `JWT_SECRET` por la clave generada.
 
-### Ejecutar el servidor
+El archivo `.env` está excluido mediante `.gitignore` y no debe publicarse.
 
-Desde `backend`:
+### 5.5. Ejecutar el Backend
+
+Desde la carpeta `backend`:
 
 ```powershell
 npm start
 ```
 
-Abrir la aplicación en:
+La aplicación estará disponible en:
 
 http://localhost:3000/
 
-Comprobar el servidor:
+Para verificar el funcionamiento del servidor:
 
 http://localhost:3000/api/health
 
-### Usuario de demostración
+Se espera una respuesta con el estado `OK`.
+
+### 5.6. Cuenta de demostración
 
 **Correo:** `cliente@cineflex.com`
 
 **Contraseña:** `CineFlex123!`
 
-Estas credenciales son únicamente para el entorno académico simulado.
+Estas credenciales pertenecen únicamente a un usuario ficticio del entorno académico.
 
-## 6. Fase A — Estrategia de pruebas
+---
 
-### Reto 1: Integración Top-Down y Stub bancario
+## 6. Fase A — Arquitectura y estrategia de pruebas
 
-Se seleccionó la estrategia Top-Down para comprobar las funcionalidades principales de CineFlex mientras se sustituye temporalmente la pasarela bancaria externa.
+### 6.1. Reto 1: Integración Top-Down y Stub bancario
 
-En `backend/server.js` se implementó una simulación bancaria con dos respuestas:
+El primer reto consiste en comprobar el proceso de compra cuando todavía no existe acceso a la API de una pasarela bancaria real.
 
-- `PRUEBA_APROBADA`: acepta el pago y permite generar un ticket.
-- `TARJETA_FALSA`: rechaza el pago mediante HTTP 402.
+Se seleccionó la estrategia de integración **Top-Down**, porque permite validar las funcionalidades principales y sustituir temporalmente los servicios que aún no están disponibles.
 
-Esto permite validar las reservas sin realizar operaciones bancarias reales.
+Para resolver este problema se implementó un **Stub bancario**, encargado de simular las respuestas de una entidad financiera.
 
-### Reto 2: Requisitos y regresión
+La simulación se encuentra implementada en `backend/server.js`.
 
-**Requisitos funcionales:**
+Se definieron dos escenarios:
 
-1. El usuario debe poder iniciar sesión.
-2. El usuario debe poder reservar un asiento disponible mediante un pago aprobado.
-
-**Requisitos no funcionales:**
-
-1. La consulta de cartelera debe responder en menos de 300 milisegundos en el entorno de pruebas.
-2. El sistema debe evaluarse bajo una carga de 500 usuarios virtuales con arranque gradual.
-
-**Estrategia de regresión:**
-
-Las pruebas se seleccionan según el impacto de cada cambio.
-
-Modificar el color de un botón secundario no requiere repetir todas las pruebas bancarias. Sin embargo, modificar la autenticación, las reservas o los pagos exige ejecutar nuevamente las pruebas correspondientes.
-
-### Reto 3: Selenium frente a Cypress
-
-| Criterio | Selenium | Cypress |
+| Valor de prueba | Respuesta | Resultado |
 |---|---|---|
-| Objetivo | Automatización de navegadores | Pruebas y depuración web |
+| `PRUEBA_APROBADA` | Pago aprobado | Genera ticket virtual |
+| `TARJETA_FALSA` | HTTP 402 | Rechaza la operación |
+
+De esta forma se verifica que CineFlex interprete correctamente las respuestas bancarias y gestione las reservas sin realizar transacciones reales.
+
+### 6.2. Reto 2: Requisitos y estrategia de regresión
+
+#### Requisitos funcionales
+
+**RF-01: Autenticación de usuario**
+
+El sistema debe permitir que un usuario registrado inicie sesión con credenciales válidas.
+
+**RF-02: Reserva de entradas**
+
+El sistema debe permitir seleccionar un asiento disponible, procesar un pago simulado aprobado y generar un ticket virtual.
+
+#### Requisitos no funcionales
+
+**RNF-01: Tiempo de respuesta**
+
+La consulta de cartelera debe responder en menos de 300 milisegundos en el entorno de pruebas establecido.
+
+**RNF-02: Evaluación de rendimiento**
+
+El sistema debe someterse a una prueba de carga con 500 usuarios virtuales y un periodo de arranque gradual de 15 segundos.
+
+#### Estrategia de regresión
+
+Las pruebas de regresión permiten comprobar que los cambios realizados en el sistema no afecten funcionalidades existentes.
+
+La selección de pruebas depende del impacto de cada modificación.
+
+Por ejemplo, si un desarrollador modifica únicamente el color de un botón secundario, se deben priorizar verificaciones visuales y de funcionamiento del elemento.
+
+No es necesario ejecutar nuevamente todas las pruebas bancarias si el cambio no afecta dicho módulo.
+
+Sin embargo, si se modifica la autenticación, el proceso de reserva o la lógica de pagos, deben repetirse las pruebas correspondientes y los flujos críticos relacionados.
+
+Esto permite optimizar el tiempo de ejecución y los recursos utilizados.
+
+### 6.3. Reto 3: Selenium WebDriver frente a Cypress
+
+Se realizó una comparación técnica para seleccionar la herramienta apropiada para CineFlex.
+
+| Criterio | Selenium WebDriver | Cypress |
+|---|---|---|
+| Propósito | Automatización de navegadores | Pruebas y depuración web |
 | Navegadores | Amplio soporte mediante WebDriver | Navegadores compatibles con Cypress |
-| Patrón POM | Adecuado para estructurar pruebas | Puede organizarse mediante comandos y abstracciones |
-| Aplicación en CineFlex | Flujos completos de reserva | Pruebas rápidas del Frontend |
+| Lenguajes | Compatible con varios lenguajes | Principalmente JavaScript y TypeScript |
+| Ejecución | Control mediante WebDriver | Ejecución integrada con herramientas de pruebas web |
+| Depuración | Uso de registros y herramientas externas | Herramientas integradas para inspección |
+| Aplicación en CineFlex | Flujo completo de reserva | Pruebas rápidas del Frontend |
 
-Se eligió Selenium WebDriver para automatizar las acciones del usuario y organizar el código mediante Page Object Model.
+**Herramienta seleccionada: Selenium WebDriver.**
 
-## 7. Pruebas de API — Postman y Newman
+Se eligió Selenium para automatizar los principales flujos de usuario y estructurar el código mediante el patrón Page Object Model.
 
-La colección contiene tres peticiones principales:
+Cypress sería una alternativa apropiada para pruebas frecuentes de componentes del Frontend durante el desarrollo.
+
+El análisis completo se encuentra en el documento:
+
+[estrategia_pruebas.pdf](estrategia_pruebas.pdf)
+
+---
+
+## 7. Fase B — Pruebas de API con Postman
+
+Se desarrolló una colección de pruebas automatizadas para tres endpoints principales.
+
+### 7.1. Endpoints evaluados
 
 | Método | Endpoint | Validación |
 |---|---|---|
-| POST | `/api/auth/login` | Inicio de sesión y captura de JWT |
-| GET | `/api/cartelera` | JSON válido y respuesta menor a 300 ms |
-| POST | `/api/reservas` | Rechazo de tarjeta falsa mediante HTTP 402 |
+| POST | `/api/auth/login` | Inicio de sesión y JWT |
+| GET | `/api/cartelera` | Consulta de películas y rendimiento |
+| POST | `/api/reservas` | Rechazo de tarjeta falsa |
 
-### Ejecutar Newman
+### 7.2. Inicio de sesión
 
-Con el Backend funcionando, abrir otra terminal desde la carpeta principal del proyecto:
+La solicitud `POST /api/auth/login` verifica:
 
-```powershell
-cd backend
-npx newman run ..\api_tests\CineFlex_API_Collection.json -e ..\api_tests\CineFlex_Environment.json
-```
+- Respuesta HTTP 200.
+- Autenticación correcta.
+- Existencia de un token JWT.
+- Captura automática del token para otras solicitudes.
 
-**Resultado verificado anteriormente:**
+### 7.3. Consulta de cartelera
 
-- 3 peticiones.
-- 16 aserciones aprobadas.
-- 0 aserciones fallidas.
+La solicitud `GET /api/cartelera` verifica:
 
-El código HTTP 402 es el resultado esperado de la prueba negativa de pago.
+- Autorización con el token JWT.
+- Código HTTP 200.
+- Respuesta JSON válida.
+- Existencia de películas.
+- Tiempo de respuesta inferior a 300 milisegundos.
 
-### Evidencia de Postman
+### 7.4. Pago rechazado
+
+La solicitud `POST /api/reservas` utiliza el método de pago `TARJETA_FALSA`.
+
+Se comprueba que:
+
+- El Backend rechace la transacción.
+- Se devuelva HTTP 402.
+- El mensaje de error sea el esperado.
+- No se confirme una reserva mediante un pago rechazado.
+
+### 7.5. Resultados de Postman
+
+**Resultados obtenidos:**
+
+- Peticiones ejecutadas: 3.
+- Aserciones aprobadas: 16.
+- Aserciones fallidas: 0.
 
 ![Resultados de Postman](evidencias/Evidencias_CineFlex_Recuperadas/06_postman_16_de_16.png)
 
-## 8. Pruebas de interfaz — Selenium WebDriver
+---
 
-Las pruebas se organizan mediante el patrón Page Object Model.
+## 8. Automatización de API mediante Newman
 
-Las clases están ubicadas en:
+Newman permite ejecutar las colecciones de Postman directamente desde la terminal.
 
-- `ui_tests/pages/LoginPage.js`
-- `ui_tests/pages/CarteleraPage.js`
-- `ui_tests/pages/ReservaPage.js`
+Con el Backend encendido, ingresar a `backend` y ejecutar:
 
-Las verificaciones se encuentran en `ui_tests/test_suite.js`.
+```powershell
+npx newman run ..\api_tests\CineFlex_API_Collection.json -e ..\api_tests\CineFlex_Environment.json
+```
 
-### Ejecutar Selenium
+### Resultados comprobados
 
-Desde la carpeta principal del proyecto, con el Backend encendido:
+| Métrica | Resultado |
+|---|---|
+| Solicitudes | 3 |
+| Aserciones | 16 |
+| Aprobadas | 16 |
+| Fallidas | 0 |
+
+Esta ejecución permite comprobar automáticamente los comportamientos esperados de la API.
+
+---
+
+## 9. Fase C — Pruebas de interfaz con Selenium
+
+Se utilizó Selenium WebDriver para automatizar las acciones del usuario dentro de Google Chrome.
+
+La suite se organizó mediante el patrón **Page Object Model (POM)**.
+
+### 9.1. Organización de POM
+
+**LoginPage.js**
+
+Contiene los localizadores y las acciones relacionadas con el inicio y cierre de sesión.
+
+**CarteleraPage.js**
+
+Gestiona las interacciones relacionadas con la cartelera y la selección de películas.
+
+**ReservaPage.js**
+
+Contiene las acciones necesarias para seleccionar horarios, asientos, métodos de pago y consultar tickets.
+
+**test_suite.js**
+
+Contiene los casos de prueba y sus aserciones.
+
+Esta separación facilita el mantenimiento y la reutilización del código.
+
+### 9.2. Casos de prueba implementados
+
+| Nº | Caso de prueba |
+|---|---|
+| 1 | Inicio de sesión exitoso |
+| 2 | Cartelera con tres películas |
+| 3 | Visualización de títulos de películas |
+| 4 | Selección de película y apertura de reserva |
+| 5 | Regreso desde reserva a cartelera |
+| 6 | Validación de horarios de película 1 |
+| 7 | Validación de horarios de película 2 |
+| 8 | Verificación de doce asientos |
+| 9 | Restricción de asiento ocupado |
+| 10 | Restricción de continuación sin seleccionar asiento |
+| 11 | Actualización de asiento seleccionado |
+| 12 | Resumen correcto del pago |
+| 13 | Rechazo de tarjeta falsa |
+| 14 | Pago aprobado y generación del ticket |
+| 15 | Actualización del resumen al cambiar horario |
+| 16 | Validación del título Cartelera en el DOM |
+| 17 | Cierre de sesión y protección con botón Atrás |
+| 18 | Bloqueo después de tres intentos fallidos |
+
+### 9.3. Ejecutar Selenium
+
+Con el servidor encendido, abrir otra terminal:
 
 ```powershell
 cd ui_tests
@@ -231,72 +425,136 @@ npm ci
 npm test
 ```
 
-**Resultado verificado anteriormente:**
+### 9.4. Resultados finales de Selenium
 
-- 15 pruebas aprobadas.
-- 0 pruebas fallidas.
+En la ejecución final se obtuvieron:
 
-**Pendiente de verificar:** los casos obligatorios específicos de bloqueo tras tres intentos incorrectos, comprobación del título Cartelera en el DOM y navegación con el botón Atrás después de cerrar sesión.
+| Métrica | Resultado |
+|---|---|
+| Pruebas ejecutadas | 18 |
+| Pruebas aprobadas | 18 |
+| Pruebas fallidas | 0 |
+| Pruebas omitidas | 0 |
+| Duración | 42,46 segundos |
 
-El resultado total se actualizará cuando se ejecuten satisfactoriamente estos casos.
+**Resultado: 100 % de las pruebas ejecutadas aprobaron.**
 
-## 9. Pruebas de rendimiento — Apache JMeter
+También se comprobaron los escenarios obligatorios solicitados:
 
-El archivo de configuración se encuentra en:
+- Bloqueo temporal después de tres contraseñas incorrectas.
+- Verificación del título Cartelera dentro del DOM.
+- Generación de un ticket tras un pago aprobado.
+- Cierre de sesión y protección de navegación mediante Atrás.
+
+### Evidencia final de Selenium
+
+![Selenium - 18 pruebas aprobadas](evidencias/18_selenium_18_de_18.png)
+
+La prueba de bloqueo se ejecuta al final porque bloquea temporalmente la cuenta de demostración durante 60 segundos.
+
+Para volver a ejecutar toda la suite inmediatamente, se puede reiniciar el Backend y restaurar el estado en memoria.
+
+---
+
+## 10. Fase D — Pruebas de rendimiento con Apache JMeter
+
+Se utilizó Apache JMeter para evaluar el comportamiento de CineFlex bajo una carga simulada de usuarios.
+
+El plan de pruebas se encuentra en:
 
 `performance/prueba_carga.jmx`
 
-### Configuración
+### 10.1. Configuración del escenario
 
-| Parámetro | Valor |
+| Parámetro | Configuración |
 |---|---|
 | Usuarios virtuales | 500 |
 | Ramp-up | 15 segundos |
 | Iteraciones | 1 |
 | Endpoint | `/api/peliculas/1/asientos` |
+| Método HTTP | GET |
 | Autenticación | JWT |
 
-### Resultados
+Antes de iniciar las consultas de disponibilidad se ejecuta una autenticación para obtener el token JWT.
 
-En la prueba local realizada se obtuvieron:
+Los usuarios virtuales se inician gradualmente durante 15 segundos.
 
-- 500 consultas de asientos y un inicio de sesión de preparación.
-- 501 solicitudes registradas en total.
-- 0 % de errores.
-- Aproximadamente 3 ms de respuesta promedio.
-- Alrededor de 33,4 consultas por segundo en la operación de consulta de asientos.
+### 10.2. Resultados obtenidos
 
-Estos resultados corresponden al entorno local de pruebas, no a infraestructura real de producción.
+| Métrica | Resultado |
+|---|---|
+| Solicitudes de autenticación | 1 |
+| Consultas de asientos | 500 |
+| Solicitudes totales | 501 |
+| Errores | 0 % |
+| Tiempo promedio aproximado | 3 ms |
+| Throughput de consultas de asientos | 33,4 solicitudes/s aproximadamente |
 
-### Evidencia del Summary Report
+Durante la prueba local, el servidor respondió correctamente a las 500 consultas de asientos.
 
-![JMeter Summary Report](evidencias/Evidencias_CineFlex_Recuperadas/11_jmeter_summary_500_consultas.jpg)
+El resultado no representa una certificación de disponibilidad en un entorno productivo, sino una medición realizada bajo condiciones controladas.
 
-## 10. Integración continua — GitHub Actions
+### 10.3. Evidencia del Summary Report
 
-El pipeline se encuentra en:
+![JMeter - Summary Report](evidencias/Evidencias_CineFlex_Recuperadas/11_jmeter_summary_500_consultas.jpg)
+
+### 10.4. Ejecutar el plan de JMeter
+
+Desde la carpeta principal del proyecto, con el Backend encendido:
+
+```powershell
+jmeter -n -t performance/prueba_carga.jmx -l performance/resultados_carga.jtl
+```
+
+Este comando requiere que JMeter esté disponible en el PATH del sistema.
+
+Si no lo está, debe utilizarse la ruta completa de `jmeter.bat`.
+
+Antes de repetir una prueba se debe evitar reutilizar un archivo JTL que contenga resultados anteriores.
+
+---
+
+## 11. Integración continua con GitHub Actions
+
+Se implementó un pipeline de integración continua mediante GitHub Actions.
+
+El archivo de configuración se encuentra en:
 
 `.github/workflows/qa-pipeline.yml`
 
-Se ejecuta automáticamente cuando se realizan cambios mediante `push` o `pull_request` a `main`.
+### 11.1. Funcionamiento
 
-El proceso realiza las siguientes acciones:
+El pipeline se ejecuta cuando se realiza un `push` o un `pull_request` hacia la rama `main`.
 
-1. Descarga el código del repositorio.
-2. Prepara Node.js.
+El flujo realiza las siguientes tareas:
+
+1. Descarga el repositorio.
+2. Configura Node.js.
 3. Instala las dependencias.
-4. Inicia el servidor de CineFlex con variables de entorno temporales.
-5. Comprueba que el Backend responda.
-6. Ejecuta la colección automatizada mediante Newman.
-7. Marca la ejecución como fallida si alguna prueba no pasa.
+4. Inicia el Backend con variables de entorno temporales.
+5. Comprueba el endpoint de salud.
+6. Ejecuta la colección de Postman utilizando Newman.
+7. Marca la ejecución como fallida si una prueba no pasa.
 
-**Resultado anteriormente verificado:** 16 aserciones aprobadas y 0 fallidas.
+### 11.2. Resultados comprobados
 
-[Ver ejecuciones de GitHub Actions](https://github.com/pollofrito18/qa-cineflex-project/actions)
+Se obtuvo una ejecución exitosa de Newman dentro de GitHub Actions:
 
-![GitHub Actions](evidencias/Evidencias_CineFlex_Recuperadas/08_github_actions_16_de_16.png)
+- Peticiones: 3.
+- Aserciones aprobadas: 16.
+- Aserciones fallidas: 0.
 
-## 11. Evidencias del proyecto
+![GitHub Actions - Ejecución exitosa](evidencias/Evidencias_CineFlex_Recuperadas/08_github_actions_16_de_16.png)
+
+[Consultar ejecuciones de GitHub Actions](https://github.com/pollofrito18/qa-cineflex-project/actions)
+
+**Alcance del pipeline:** GitHub Actions ejecuta las pruebas de API con Newman. Las pruebas de Selenium y JMeter se ejecutaron por separado.
+
+---
+
+## 12. Evidencias generales
+
+Las capturas de pantalla se encuentran dentro del directorio `evidencias`.
 
 ### Servidor funcionando
 
@@ -306,48 +564,110 @@ El proceso realiza las siguientes acciones:
 
 ![Pago rechazado](evidencias/Evidencias_CineFlex_Recuperadas/04_pago_rechazado.png)
 
-### Compra aprobada y ticket virtual
+### Ticket virtual confirmado
 
 ![Ticket confirmado](evidencias/Evidencias_CineFlex_Recuperadas/05_ticket_confirmado.png)
 
-### Resultados de Postman
+### Postman
 
 ![Postman](evidencias/Evidencias_CineFlex_Recuperadas/06_postman_16_de_16.png)
 
-## 12. Limitaciones
+### Selenium
 
-CineFlex es una aplicación de demostración académica.
+![Selenium](evidencias/18_selenium_18_de_18.png)
 
-Las reservas se mantienen en memoria y se reinician al detener el servidor.
+### JMeter
 
-La pasarela bancaria es simulada.
+![JMeter](evidencias/Evidencias_CineFlex_Recuperadas/11_jmeter_summary_500_consultas.jpg)
 
-Los resultados de JMeter corresponden exclusivamente a las condiciones locales evaluadas.
+### GitHub Actions
 
-La ejecución de GitHub Actions automatiza las pruebas de API mediante Newman. Selenium y JMeter se ejecutan por separado.
+![GitHub Actions](evidencias/Evidencias_CineFlex_Recuperadas/08_github_actions_16_de_16.png)
 
-Antes de utilizar este proyecto en producción sería necesario incorporar persistencia real, fortalecer los controles de seguridad y revisar las dependencias.
+---
 
-## 13. Documento de estrategia
+## 13. Seguridad y limitaciones
 
-El documento `estrategia_pruebas.pdf` contiene el análisis detallado de los tres retos, los requisitos, la estrategia de regresión, la comparación de herramientas y las evidencias del proyecto.
+El proyecto corresponde a un entorno académico de pruebas.
+
+Por esta razón:
+
+- No se utiliza una pasarela de pagos real.
+- Las reservas se almacenan temporalmente en memoria.
+- El estado de las reservas se reinicia cuando se reinicia el servidor.
+- Las credenciales de demostración no deben utilizarse en sistemas reales.
+- La clave JWT se configura en variables de entorno privadas.
+- Las pruebas de JMeter se ejecutaron en un entorno local.
+- Las pruebas exitosas no garantizan la ausencia de vulnerabilidades.
+- Algunas dependencias de desarrollo requieren revisión de seguridad antes de cualquier despliegue real.
+
+La aplicación y las pruebas deben adaptarse y fortalecerse antes de utilizarse en un sistema de producción.
+
+---
+
+## 14. Documento de estrategia de pruebas
+
+El documento `estrategia_pruebas.pdf` contiene:
+
+- Justificación de la integración Top-Down.
+- Diseño del Stub bancario.
+- Requisitos funcionales.
+- Requisitos no funcionales.
+- Estrategia de regresión.
+- Comparación entre Selenium y Cypress.
+- Resultados y evidencias del proyecto.
 
 [Consultar estrategia de pruebas](estrategia_pruebas.pdf)
 
-## 14. Video de sustentación
+---
+
+## 15. Video de sustentación
 
 **Duración máxima:** 3 minutos.
 
 **Integrantes:** Luis, Marlon y Esteban.
 
-**Enlace:** Pendiente de publicar.
+**Enlace al video:** Pendiente de publicar.
 
-El video debe mostrar la arquitectura, los tres retos, la estructura de Selenium con POM y la demostración de pruebas reales.
+### Distribución de la exposición
 
-## 15. Conclusión
+| Integrante | Responsabilidad |
+|---|---|
+| Luis | Introducción, requisitos y regresión |
+| Marlon | Integración Top-Down y Stub bancario |
+| Esteban | Selenium frente a Cypress, pruebas y resultados |
 
-CineFlex permitió aplicar estrategias de integración, pruebas de API, automatización de interfaz, pruebas de rendimiento e integración continua.
+Durante el video se debe mostrar:
 
-La combinación de Postman, Newman, Selenium, JMeter y GitHub Actions permitió verificar los principales comportamientos del sistema y documentar los resultados obtenidos.
+- Arquitectura y estructura del proyecto.
+- Código del Stub bancario.
+- Los tres retos de la Fase A.
+- Organización del patrón Page Object Model.
+- Ejecución de las pruebas.
+- Resultados de JMeter y GitHub Actions.
 
-El repositorio contiene el código fuente, las configuraciones y las evidencias necesarias para reproducir el entorno académico de pruebas.
+Antes de la entrega se debe publicar el video en YouTube, Google Drive o una plataforma equivalente con un enlace accesible para el profesor.
+
+El enlace público debe agregarse al comienzo de este README.
+
+---
+
+## 16. Conclusiones
+
+El proyecto CineFlex permitió aplicar diferentes técnicas de aseguramiento de calidad a una aplicación web simulada.
+
+Las pruebas con Postman y Newman comprobaron los principales endpoints de la API.
+
+Selenium WebDriver permitió automatizar 18 escenarios de interfaz, incluyendo autenticación, selección de asientos, pagos, tickets y controles de acceso.
+
+Apache JMeter permitió evaluar un escenario de 500 usuarios virtuales, mientras que GitHub Actions automatizó la ejecución de pruebas de API ante cambios en el repositorio.
+
+Los resultados obtenidos permitieron demostrar el funcionamiento de los componentes evaluados y la importancia de implementar pruebas automatizadas durante el desarrollo de software.
+
+---
+
+**Proyecto académico CineFlex — QA en Producción**
+
+**Integrantes:** Luis, Marlon y Esteban
+
+**Repositorio:** https://github.com/pollofrito18/qa-cineflex-project

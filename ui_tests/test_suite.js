@@ -1,7 +1,11 @@
-﻿const { test } = require('node:test');
+﻿
+const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { Builder } = require('selenium-webdriver');
+
 const LoginPage = require('./pages/LoginPage');
+const CarteleraPage = require('./pages/CarteleraPage');
+const ReservaPage = require('./pages/ReservaPage');
 
 test('Login correcto en CineFlex', { timeout: 120000 }, async () => {
   const driver = await new Builder().forBrowser('chrome').build();
@@ -22,7 +26,6 @@ test('Login correcto en CineFlex', { timeout: 120000 }, async () => {
     await driver.quit();
   }
 });
-const CarteleraPage = require('./pages/CarteleraPage');
 
 function pruebaConSesion(nombre, ejecutar) {
   test(nombre, { timeout: 120000 }, async () => {
@@ -30,10 +33,15 @@ function pruebaConSesion(nombre, ejecutar) {
 
     try {
       const login = new LoginPage(driver);
+
       await login.abrir();
-      await login.iniciarSesion('cliente@cineflex.com', 'CineFlex123!');
+      await login.iniciarSesion(
+        'cliente@cineflex.com',
+        'CineFlex123!'
+      );
 
       const cartelera = new CarteleraPage(driver);
+
       await ejecutar(cartelera);
     } finally {
       await driver.quit();
@@ -70,10 +78,10 @@ pruebaConSesion('Regresar desde reserva a cartelera', async cartelera => {
 
   assert.equal(await cartelera.carteleraVisible(), true);
 });
-const ReservaPage = require('./pages/ReservaPage');
 
 pruebaConSesion('Pelicula 1 ofrece tres horarios', async cartelera => {
   await cartelera.seleccionarPelicula(1);
+
   const reserva = new ReservaPage(cartelera.driver);
 
   assert.deepEqual(await reserva.obtenerHorarios(), [
@@ -83,6 +91,7 @@ pruebaConSesion('Pelicula 1 ofrece tres horarios', async cartelera => {
 
 pruebaConSesion('Pelicula 2 ofrece dos horarios', async cartelera => {
   await cartelera.seleccionarPelicula(2);
+
   const reserva = new ReservaPage(cartelera.driver);
 
   assert.deepEqual(await reserva.obtenerHorarios(), [
@@ -92,6 +101,7 @@ pruebaConSesion('Pelicula 2 ofrece dos horarios', async cartelera => {
 
 pruebaConSesion('La sala contiene doce asientos', async cartelera => {
   await cartelera.seleccionarPelicula(1);
+
   const reserva = new ReservaPage(cartelera.driver);
 
   assert.equal(await reserva.contarAsientos(), 12);
@@ -99,6 +109,7 @@ pruebaConSesion('La sala contiene doce asientos', async cartelera => {
 
 pruebaConSesion('No permite seleccionar un asiento ocupado', async cartelera => {
   await cartelera.seleccionarPelicula(1);
+
   const reserva = new ReservaPage(cartelera.driver);
 
   assert.equal(await reserva.asientoOcupado('A1'), true);
@@ -106,6 +117,7 @@ pruebaConSesion('No permite seleccionar un asiento ocupado', async cartelera => 
 
 pruebaConSesion('No permite continuar sin seleccionar asiento', async cartelera => {
   await cartelera.seleccionarPelicula(1);
+
   const reserva = new ReservaPage(cartelera.driver);
 
   await reserva.continuarAlPago();
@@ -117,8 +129,10 @@ pruebaConSesion('No permite continuar sin seleccionar asiento', async cartelera 
 
   assert.equal(await reserva.reservaVisible(), true);
 });
+
 pruebaConSesion('Seleccionar asiento actualiza la etiqueta', async cartelera => {
   await cartelera.seleccionarPelicula(3);
+
   const reserva = new ReservaPage(cartelera.driver);
 
   const asiento = await reserva.seleccionarAsientoDisponible();
@@ -131,9 +145,11 @@ pruebaConSesion('Seleccionar asiento actualiza la etiqueta', async cartelera => 
 
 pruebaConSesion('El resumen de pago muestra la reserva correcta', async cartelera => {
   await cartelera.seleccionarPelicula(2);
+
   const reserva = new ReservaPage(cartelera.driver);
 
   const asiento = await reserva.seleccionarAsientoDisponible();
+
   await reserva.continuarAlPago();
 
   const resumen = await reserva.obtenerResumenPago();
@@ -146,6 +162,7 @@ pruebaConSesion('El resumen de pago muestra la reserva correcta', async carteler
 
 pruebaConSesion('El banco simulado rechaza tarjeta falsa', async cartelera => {
   await cartelera.seleccionarPelicula(1);
+
   const reserva = new ReservaPage(cartelera.driver);
 
   await reserva.seleccionarAsientoDisponible();
@@ -163,9 +180,11 @@ pruebaConSesion('El banco simulado rechaza tarjeta falsa', async cartelera => {
 
 pruebaConSesion('Pago aprobado genera ticket confirmado', async cartelera => {
   await cartelera.seleccionarPelicula(3);
+
   const reserva = new ReservaPage(cartelera.driver);
 
   const asiento = await reserva.seleccionarAsientoDisponible();
+
   await reserva.continuarAlPago();
   await reserva.seleccionarTarjeta('PRUEBA_APROBADA');
   await reserva.confirmarPago();
@@ -178,19 +197,113 @@ pruebaConSesion('Pago aprobado genera ticket confirmado', async cartelera => {
   assert.equal(ticket.estado, 'CONFIRMADO');
 
   await reserva.volverACartelera();
+
   assert.equal(await cartelera.carteleraVisible(), true);
 });
 
 pruebaConSesion('Cambiar horario actualiza el resumen de pago', async cartelera => {
   await cartelera.seleccionarPelicula(1);
+
   const reserva = new ReservaPage(cartelera.driver);
 
   await reserva.seleccionarHorario('21:00');
+
   const asiento = await reserva.seleccionarAsientoDisponible();
+
   await reserva.continuarAlPago();
 
   const resumen = await reserva.obtenerResumenPago();
 
   assert.ok(resumen.includes('21:00'));
   assert.ok(resumen.includes(`Asiento ${asiento}`));
+});
+
+pruebaConSesion('El titulo Cartelera aparece correctamente en el DOM', async cartelera => {
+  const titulo = await cartelera.obtenerTituloCartelera();
+
+  assert.equal(titulo, 'Cartelera');
+  assert.equal(await cartelera.carteleraVisible(), true);
+});
+
+test('Cerrar sesion impide regresar a la cartelera con Atras', { timeout: 120000 }, async () => {
+  const driver = await new Builder().forBrowser('chrome').build();
+
+  try {
+    const login = new LoginPage(driver);
+
+    await login.abrir();
+    await login.iniciarSesion(
+      'cliente@cineflex.com',
+      'CineFlex123!'
+    );
+
+    const cartelera = new CarteleraPage(driver);
+
+    assert.equal(await cartelera.carteleraVisible(), true);
+
+    await driver.executeScript(
+      "window.location.hash = '#cartelera-prueba'"
+    );
+
+    await login.cerrarSesion();
+
+    assert.equal(await login.loginVisible(), true);
+    assert.equal(await cartelera.carteleraVisible(), false);
+
+    await driver.navigate().back();
+
+    assert.equal(await login.loginVisible(), true);
+    assert.equal(await cartelera.carteleraVisible(), false);
+  } finally {
+    await driver.quit();
+  }
+});
+
+test('Bloqueo de cuenta despues de tres intentos fallidos', { timeout: 120000 }, async () => {
+  const driver = await new Builder().forBrowser('chrome').build();
+
+  try {
+    const login = new LoginPage(driver);
+    const cartelera = new CarteleraPage(driver);
+
+    await login.abrir();
+
+    const correo = 'cliente@cineflex.com';
+    const claveIncorrecta = 'ClaveIncorrecta123!';
+
+    const mensajesEsperados = [
+      'Credenciales incorrectas',
+      'Credenciales incorrectas',
+      'Cuenta bloqueada por 3 intentos fallidos'
+    ];
+
+    for (const mensajeEsperado of mensajesEsperados) {
+      await login.enviarCredenciales(
+        correo,
+        claveIncorrecta
+      );
+
+      const mensaje = await login.obtenerErrorLogin();
+
+      assert.equal(mensaje, mensajeEsperado);
+      assert.equal(await login.loginVisible(), true);
+    }
+
+    await login.enviarCredenciales(
+      correo,
+      'CineFlex123!'
+    );
+
+    const mensajeBloqueo = await login.obtenerErrorLogin();
+
+    assert.equal(
+      mensajeBloqueo,
+      'Cuenta bloqueada temporalmente'
+    );
+
+    assert.equal(await login.loginVisible(), true);
+    assert.equal(await cartelera.carteleraVisible(), false);
+  } finally {
+    await driver.quit();
+  }
 });
