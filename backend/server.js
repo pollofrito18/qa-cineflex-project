@@ -8,13 +8,23 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { randomUUID } = require('crypto');
+const mysql = require('mysql2/promise');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET;
+const MYSQL_HOST = process.env.MYSQL_HOST || '127.0.0.1';
+const MYSQL_PORT = Number(process.env.MYSQL_PORT || 3306);
+const MYSQL_USER = process.env.MYSQL_USER || 'root';
+const MYSQL_PASSWORD = process.env.MYSQL_PASSWORD || '';
+const MYSQL_DATABASE = process.env.MYSQL_DATABASE || 'cineflex_db';
 
 if (!JWT_SECRET) {
   throw new Error('Falta JWT_SECRET en el archivo .env');
+}
+
+if (!/^[a-zA-Z0-9_]+$/.test(MYSQL_DATABASE)) {
+  throw new Error('MYSQL_DATABASE solo puede contener letras, numeros y guion bajo');
 }
 
 app.use(helmet());
@@ -75,7 +85,7 @@ const asientosOcupados = {
   3: new Set(['B4'])
 };
 
-const reservas = new Map();
+let pool;
 
 function verificarToken(req, res, next) {
   const authorization = req.headers.authorization || '';
@@ -115,11 +125,21 @@ function simularPago(tarjeta) {
   };
 }
 
-app.get('/api/health', (req, res) => {
-  return res.status(200).json({
-    estado: 'OK',
-    mensaje: 'Servidor CineFlex funcionando correctamente'
-  });
+app.get('/api/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    return res.status(200).json({
+      estado: 'OK',
+      mensaje: 'Servidor CineFlex funcionando correctamente',
+      baseDeDatos: 'conectada'
+    });
+  } catch (error) {
+    console.error('Error al verificar MySQL:', error.message);
+    return res.status(503).json({
+      estado: 'ERROR',
+      mensaje: 'Base de datos no disponible'
+    });
+  }
 });
 
 app.post('/api/auth/login', (req, res) => {
@@ -244,7 +264,7 @@ app.get('/api/peliculas/:id/asientos', verificarToken, (req, res) => {
   });
 });
 
-app.post('/api/reservas', verificarToken, (req, res) => {
+app.post('/api/reservas', verificarToken, async (req, res) => {
   const { peliculaId, asiento, horario, tarjeta } = req.body || {};
 
   if (
@@ -308,7 +328,36 @@ app.post('/api/reservas', verificarToken, (req, res) => {
     estado: 'CONFIRMADO'
   };
 
-  reservas.set(codigoTicket, ticket);
+  try {
+    await pool.execute(
+      `INSERT INTO tickets
+        (codigo, pelicula_id, pelicula, horario, asiento, precio, fecha_reserva, usuario_id, estado)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        ticket.codigo,
+        ticket.peliculaId,
+        ticket.pelicula,
+        ticket.horario,
+        ticket.asiento,
+        ticket.precio,
+        ticket.fechaReserva.slice(0, 23).replace('T', ' '),
+        ticket.usuarioId,
+        ticket.estado
+      ]
+    );
+  } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({
+        mensaje: 'El asiento ya esta ocupado'
+      });
+    }
+
+    console.error('Error al guardar el ticket en MySQL:', error.message);
+    return res.status(503).json({
+      mensaje: 'No fue posible guardar la reserva'
+    });
+  }
+
   asientosOcupados[peliculaId].add(asiento);
 
   return res.status(201).json({
@@ -325,10 +374,27 @@ app.post('/api/reservas', verificarToken, (req, res) => {
   });
 });
 
-app.get('/api/reservas/:codigo', verificarToken, (req, res) => {
-  const ticket = reservas.get(req.params.codigo);
+app.get('/api/reservas/:codigo', verificarToken, async (req, res) => {
+  let ticket;
 
-  if (!ticket || ticket.usuarioId !== req.usuario.sub) {
+  try {
+    const [tickets] = await pool.execute(
+      `SELECT codigo, pelicula, horario, asiento, precio,
+              DATE_FORMAT(fecha_reserva, '%Y-%m-%dT%H:%i:%s.000Z') AS fechaReserva,
+              estado
+       FROM tickets
+       WHERE codigo = ? AND usuario_id = ?`,
+      [req.params.codigo, req.usuario.sub]
+    );
+    ticket = tickets[0];
+  } catch (error) {
+    console.error('Error al consultar el ticket en MySQL:', error.message);
+    return res.status(503).json({
+      mensaje: 'No fue posible consultar el ticket'
+    });
+  }
+
+  if (!ticket) {
     return res.status(404).json({
       mensaje: 'Ticket no encontrado'
     });
@@ -355,12 +421,73 @@ app.use((req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+async function inicializarBaseDeDatos() {
+  const connection = await mysql.createConnection({
+    host: MYSQL_HOST,
+    port: MYSQL_PORT,
+    user: MYSQL_USER,
+    password: MYSQL_PASSWORD
+  });
+
+  try {
+    await connection.query(
+      `CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`
+    );
+  } finally {
+    await connection.end();
+  }
+
+  pool = mysql.createPool({
+    host: MYSQL_HOST,
+    port: MYSQL_PORT,
+    user: MYSQL_USER,
+    password: MYSQL_PASSWORD,
+    database: MYSQL_DATABASE,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+  });
+
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS tickets (
+      codigo VARCHAR(16) PRIMARY KEY,
+      pelicula_id INT NOT NULL,
+      pelicula VARCHAR(150) NOT NULL,
+      horario VARCHAR(5) NOT NULL,
+      asiento VARCHAR(5) NOT NULL,
+      precio INT NOT NULL,
+      fecha_reserva DATETIME(3) NOT NULL,
+      usuario_id VARCHAR(64) NOT NULL,
+      estado VARCHAR(20) NOT NULL,
+      UNIQUE KEY uq_ticket_asiento (pelicula_id, asiento)
+    ) ENGINE=InnoDB
+  `);
+
+  const [tickets] = await pool.execute(
+    'SELECT pelicula_id, asiento FROM tickets WHERE estado = ?',
+    ['CONFIRMADO']
+  );
+
+  for (const ticket of tickets) {
+    asientosOcupados[ticket.pelicula_id]?.add(ticket.asiento);
+  }
+}
+
+async function iniciarServidor() {
+  await inicializarBaseDeDatos();
+
   console.log('=====================================');
   console.log('CINEFLEX - BACKEND ACTIVO');
   console.log(`Servidor: http://localhost:${PORT}`);
   console.log('Seguridad: Helmet + JWT');
   console.log('Registro de peticiones: Morgan');
+  console.log(`MySQL: conectado a ${MYSQL_DATABASE}`);
   console.log('Reservas y pagos simulados activos');
   console.log('=====================================');
+  app.listen(PORT);
+}
+
+iniciarServidor().catch(error => {
+  console.error('No se pudo iniciar CineFlex o conectar con MySQL:', error.message);
+  process.exitCode = 1;
 });

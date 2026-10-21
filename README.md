@@ -20,6 +20,7 @@ Se necesita:
 
 - Windows 10 u 11 y PowerShell.
 - Node.js 22 o superior y npm.
+- MySQL Server 8 o superior (MySQL Workbench puede utilizarse para administrarlo).
 - Git.
 - Google Chrome u otro navegador moderno.
 - Conexión a Internet para descargar las dependencias.
@@ -32,7 +33,7 @@ npm --version
 git --version
 ```
 
-No es necesario instalar MySQL, MongoDB, Docker, Postman, JMeter ni Visual Studio Code para utilizar la página web. Las herramientas de pruebas se explican más adelante.
+MySQL Server debe estar instalado y activo para guardar tickets; MySQL Workbench es solo la herramienta para administrarlo y no sustituye al servidor. No es necesario instalar MongoDB, Docker, Postman, JMeter ni Visual Studio Code para utilizar la página web; las herramientas de pruebas adicionales se explican más adelante.
 
 ### 1.2. Clonar el repositorio
 
@@ -67,6 +68,18 @@ node -e "const fs=require('node:fs');const crypto=require('node:crypto');if(!fs.
 
 Este comando genera una clave aleatoria y solo crea el archivo si todavía no existe.
 
+Edita `backend/.env` y agrega la configuración de tu instancia local de MySQL. No compartas ni publiques la contraseña:
+
+```env
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=TU_CLAVE_LOCAL_DE_MYSQL
+MYSQL_DATABASE=cineflex_db
+```
+
+Si tu usuario de MySQL no tiene contraseña, deja `MYSQL_PASSWORD` vacío. El usuario configurado debe poder crear una base de datos; al arrancar, CineFlex crea `cineflex_db` y la tabla `tickets` si aún no existen. El servicio de MySQL debe estar iniciado antes de ejecutar `npm start`.
+
 Comprobar la configuración:
 
 ```powershell
@@ -88,6 +101,8 @@ npm start
 ```
 
 Mantener abierta esta terminal mientras se utiliza la aplicación.
+
+Para desarrollo con reinicio automático al cambiar archivos, ejecutar `npm run dev` en lugar de `npm start`.
 
 El servidor inicia normalmente en el puerto `3000`.
 
@@ -124,9 +139,12 @@ Respuesta esperada:
 ```json
 {
   "estado": "OK",
-  "mensaje": "Servidor CineFlex funcionando correctamente"
+  "mensaje": "Servidor CineFlex funcionando correctamente",
+  "baseDeDatos": "conectada"
 }
 ```
+
+El endpoint solo responde `200 OK` cuando el Backend y MySQL están disponibles.
 
 ### 1.8. Probar la página
 
@@ -146,6 +164,17 @@ Una vez dentro de CineFlex:
 También existe la opción **Pago de prueba rechazado**, utilizada para comprobar la validación negativa del banco simulado.
 
 No se procesa dinero real.
+
+Para comprobar en MySQL Workbench que la compra se guardó, ejecuta:
+
+```sql
+USE cineflex_db;
+SELECT codigo, pelicula, horario, asiento, precio, fecha_reserva, estado
+FROM tickets
+ORDER BY fecha_reserva DESC;
+```
+
+El ticket aprobado debe aparecer con estado `CONFIRMADO`. Un pago rechazado no crea un ticket.
 
 ### 1.9. Cerrar la aplicación
 
@@ -177,6 +206,7 @@ Las funcionalidades principales son:
 |---|---|
 | Frontend | HTML, CSS y JavaScript |
 | Backend | Node.js y Express |
+| Persistencia | MySQL |
 | Autenticación | JWT y bcryptjs |
 | Seguridad HTTP | Helmet |
 | Registro de solicitudes | Morgan |
@@ -215,9 +245,11 @@ Backend Node.js + Express
  Ticket virtual
 ```
 
-El Backend también sirve los archivos del Frontend, por lo que la aplicación funciona desde una sola dirección: `http://localhost:3000/`.
+El Backend también sirve los archivos del Frontend, por lo que la aplicación funciona desde una sola dirección: `http://localhost:3000/`. Los tickets confirmados se almacenan en MySQL y permanecen después de reiniciar el servidor.
 
-**Alcance:** CineFlex es un sistema mock. Las reservas se guardan temporalmente en memoria y se restablecen al reiniciar el servidor. No utiliza una base de datos persistente.
+**Alcance:** CineFlex es un sistema mock. La cartelera, las credenciales de demostración y los pagos son simulados; los tickets confirmados se guardan en una base de datos MySQL local.
+
+Al iniciar, la aplicación carga desde MySQL los asientos que ya tienen tickets confirmados para que sigan apareciendo ocupados después de reiniciar el Backend. La base de datos se crea automáticamente; no es necesario ejecutar scripts SQL manuales.
 
 ---
 
@@ -353,6 +385,7 @@ Incluye:
 - JWT para proteger los endpoints.
 - bcryptjs para verificar las contraseñas.
 - Un Stub bancario para procesar pagos simulados.
+- MySQL para persistir tickets confirmados y recuperar los asientos ocupados al iniciar.
 
 ### 5.2. Peticiones principales
 
@@ -510,13 +543,11 @@ npm test
 | Pruebas ejecutadas | 18 |
 | Pruebas aprobadas | 18 |
 | Pruebas fallidas | 0 |
-| Duración aproximada | 42,46 segundos |
+| Duración aproximada | 50,62 segundos |
 
 ![Selenium - 18 pruebas aprobadas](evidencias/18_selenium_18_de_18.png)
 
-La última prueba bloquea temporalmente la cuenta de demostración durante 60 segundos.
-
-Si se desea repetir inmediatamente la suite, se recomienda reiniciar el Backend para restablecer el estado de prueba.
+La última prueba bloquea temporalmente la cuenta de demostración durante 60 segundos. Este bloqueo de autenticación es temporal y se mantiene en memoria; las compras y los asientos ocupados, en cambio, se conservan en MySQL. Reiniciar el Backend no borra los tickets ni libera sus asientos.
 
 ---
 
@@ -590,11 +621,12 @@ El pipeline se ejecuta al realizar `push` o `pull_request` hacia la rama `main`.
 
 1. Descargar el repositorio.
 2. Preparar Node.js 22.
-3. Instalar dependencias del Backend mediante `npm ci`.
-4. Iniciar el servidor con variables de entorno temporales.
-5. Verificar el endpoint de salud.
-6. Ejecutar la colección Postman mediante Newman.
-7. Marcar como fallida la ejecución si alguna prueba falla.
+3. Iniciar un servicio MySQL temporal para el trabajo.
+4. Instalar dependencias del Backend mediante `npm ci`.
+5. Iniciar el servidor con variables de entorno temporales.
+6. Verificar el endpoint de salud y la conexión a la base de datos.
+7. Ejecutar la colección Postman mediante Newman.
+8. Marcar como fallida la ejecución si alguna prueba falla.
 
 ### Resultados
 
@@ -658,6 +690,10 @@ Los archivos de evidencia se encuentran dentro del directorio `evidencias`.
 | `node` o `npm` no se reconoce | Instalar Node.js 22 o superior |
 | `ENOENT package.json` | Ejecutar los comandos de inicio dentro de `backend` |
 | `Falta JWT_SECRET` | Crear `.env` siguiendo el paso 1.4 |
+| `ECONNREFUSED 127.0.0.1:3306` | Iniciar el servicio MySQL y comprobar `MYSQL_HOST` y `MYSQL_PORT` en `.env` |
+| `ER_ACCESS_DENIED_ERROR` | Revisar `MYSQL_USER` y `MYSQL_PASSWORD` en `.env`; no publicar la contraseña |
+| Error creando `cineflex_db` | Usar un usuario MySQL que tenga permiso para crear bases de datos |
+| `/api/health` responde HTTP 503 | Revisar que MySQL esté iniciado y que la configuración de `.env` sea válida |
 | `EADDRINUSE` | Liberar el puerto 3000 |
 | La página no tiene estilos | Abrir `http://localhost:3000/` con el Backend encendido |
 | Error HTTP 401 | Revisar las credenciales |
@@ -674,12 +710,12 @@ Antes de evaluar el proyecto en otro computador, se recomienda:
 
 1. Clonar el repositorio en una carpeta nueva.
 2. Instalar las dependencias mediante `npm ci`.
-3. Generar el archivo `.env`.
-4. Iniciar con `npm start`.
-5. Comprobar `/api/health`.
-6. Abrir la página.
-7. Iniciar sesión.
-8. Completar una reserva simulada.
+3. Crear `backend/.env` siguiendo el paso 1.4: generar `JWT_SECRET` y completar los valores de conexión a MySQL.
+4. Iniciar el servicio MySQL.
+5. Iniciar el Backend con `npm start`.
+6. Comprobar `/api/health` y que indique `"baseDeDatos":"conectada"`.
+7. Abrir la página.
+8. Iniciar sesión y completar una reserva simulada.
 
 Esto permite verificar que la aplicación funciona sin depender de archivos privados o dependencias instaladas previamente.
 
@@ -694,8 +730,8 @@ Por esta razón:
 - No procesa pagos reales.
 - No utiliza tarjetas bancarias verdaderas.
 - Las credenciales son ficticias.
-- Las reservas se guardan temporalmente en memoria.
-- No dispone de una base de datos relacional persistente.
+- Los pagos son simulados; no se procesan transacciones bancarias reales.
+- MySQL se utiliza para guardar tickets confirmados, no como sistema de pagos.
 - El archivo `.env` no se publica en GitHub.
 - La clave JWT se genera individualmente en cada instalación.
 - GitHub Actions ejecuta las pruebas de API, pero no publica la página en Internet.
