@@ -6,7 +6,7 @@
 
 **Equipo:** Luis, Marlon, vanesa, Esteban y demás integrantes que participen en la entrega.
 
-**Video de sustentación (máximo 3 minutos):** [Ver video en Google Drive](https://drive.google.com/file/d/1nG0WCFck7yOUb2Qaiig418Q9ODDwPqD4/view?usp=sharing)
+**Video de sustentación (máximo 3 minutos):** https://drive.google.com/file/d/1nG0WCFck7yOUb2Qaiig418Q9ODDwPqD4/view?usp=sharing
 
 > **Para el docente:** CineFlex es una aplicación académica que se ejecuta localmente. GitHub contiene el código fuente, no una página alojada permanentemente en Internet. Siga la sección de instalación para abrirla en su computador.
 
